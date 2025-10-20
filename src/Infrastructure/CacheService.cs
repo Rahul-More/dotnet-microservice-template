@@ -1,24 +1,25 @@
-using Microsoft.Extensions.Caching.Memory;
+using ZiggyCreatures.FusionCaching;
+using ZiggyCreatures.FusionCaching.Abstractions;
 
 namespace Infrastructure;
 
 public class CacheService
 {
-    private readonly IMemoryCache _cache;
+    private readonly IFusionCache _cache;
 
-    public CacheService(IMemoryCache cache)
+    public CacheService(IFusionCache cache)
     {
         _cache = cache;
     }
 
     public T? Get<T>(string key)
     {
-        _cache.TryGetValue(key, out T? value);
-        return value;
+        // Returns the cached item or default if not found
+        return _cache.TryGet<T>(key, out var value) ? value : default;
     }
 
     public void Set<T>(string key, T value, TimeSpan expiration)
     {
-        _cache.Set(key, value, expiration);
+        _cache.Set<T>(key, value, expiration);
     }
 }
