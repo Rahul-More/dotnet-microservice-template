@@ -1,6 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
+// Add these usings for DI registration
+using Persistence;
+using Common;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -19,6 +23,19 @@ builder.Services.AddSwaggerGen();
 //     .WriteTo.Console()
 //     .WriteTo.LogstashTcpNetCore("<LogstashIPAddress>", 5000)
 //     .CreateLogger();
+
+// Database provider DI registration
+builder.Services.AddScoped<IDatabaseProvider>(sp =>
+    new DapperDatabaseProvider(builder.Configuration.GetConnectionString("Postgres")!));
+
+// Uncomment and configure when using EF Core
+// builder.Services.AddScoped<IDatabaseProvider, EfCoreDatabaseProvider>();
+
+// Register Mongo provider (example)
+builder.Services.AddScoped<MongoDatabaseProvider>(sp =>
+    new MongoDatabaseProvider(
+        builder.Configuration.GetConnectionString("Mongo")!,
+        "appdb"));
 
 var app = builder.Build();
 
